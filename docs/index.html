@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#a8325a">
+  <title>Bol</title>
+  <meta name="description" content="Bol – 2000 core Hindi words">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <!-- iPhone/iPad: home-screen icon, name and full-screen mode (iOS ignores manifest icons). -->
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-title" content="Bol">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <style>
+    :root {
+      --bg: #f6f0e8; --fg: #241a1d; --muted: #7a6a6f;
+      --card: #ffffff; --back: #a8325a; --back-fg: #ffffff; --accent: #f4a6bd;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #17110f; --fg: #f2e8ea; --muted: #a3949a; --card: #251c1e; --back: #8a2a4b; }
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { margin: 0; height: 100%; }
+    body {
+      background: var(--bg); color: var(--fg);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans Devanagari", sans-serif;
+      display: flex; flex-direction: column; padding: 16px;
+      padding-top: max(16px, env(safe-area-inset-top));
+      padding-bottom: max(16px, env(safe-area-inset-bottom));
+    }
+    header { display: flex; gap: 8px; align-items: center; }
+    header h1 { flex: 1; margin: 0; font-size: 1.3rem; display: flex; align-items: center; gap: 8px; }
+    header h1 img { width: 32px; height: 32px; border-radius: 8px; }
+    button {
+      font: inherit; color: inherit; background: var(--card);
+      border: 1px solid color-mix(in srgb, var(--muted) 40%, transparent);
+      border-radius: 10px; padding: 10px 12px;
+    }
+    #status { display: flex; justify-content: space-between; align-items: center;
+      color: var(--muted); font-size: .9rem; margin: 10px 2px 8px; min-height: 1.6em; }
+    .stage { flex: 1; display: flex; perspective: 1200px; min-height: 0; }
+    .card { position: relative; flex: 1; transform-style: preserve-3d;
+      transition: transform .4s ease; cursor: pointer; user-select: none; }
+    .card.flipped { transform: rotateY(180deg); }
+    .face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 20px;
+      display: flex; align-items: center; justify-content: center; padding: 56px 24px;
+      text-align: center; box-shadow: 0 6px 24px rgb(0 0 0 / .12); }
+    .front { background: var(--card); }
+    .back { background: var(--back); color: var(--back-fg); transform: rotateY(180deg); }
+    .tag { position: absolute; top: 16px; left: 18px; text-align: left; white-space: pre-line;
+      font-size: .85rem; font-weight: 600; line-height: 1.35; opacity: .65; }
+    .word { font-size: clamp(1.6rem, 9vw, 3rem); font-weight: 700; overflow-wrap: anywhere; }
+    .say { display: block; font-size: .5em; font-weight: 500; margin-top: .5em; color: var(--back); }
+    .note { display: block; font-size: .5em; font-weight: 500; opacity: .75; margin-top: .8em; }
+    #speak { position: absolute; top: 10px; right: 10px; font-size: 1.3rem; padding: 6px 10px;
+      border: 0; background: transparent; }
+    #speak[hidden] { display: none; }
+    .hint { position: absolute; bottom: 16px; font-size: .8rem; opacity: .6; }
+    .controls { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 16px; }
+    .controls button { padding: 14px 8px; font-size: 1rem; }
+    #learnt { background: var(--accent); color: #241a1d; border-color: var(--accent); font-weight: 600; }
+    button:disabled { opacity: .4; }
+    #install { margin-bottom: 10px; padding: 12px; font-weight: 600;
+      background: var(--accent); color: #241a1d; border-color: var(--accent); }
+    #install[hidden] { display: none; }
+    #showLearnt { padding: 4px 12px; font-size: .85rem; }
+    dialog { border: 0; padding: 0; width: 100%; max-width: 560px; height: 100%; max-height: 100%;
+      margin: 0 auto; background: var(--bg); color: var(--fg); }
+    dialog::backdrop { background: rgb(0 0 0 / .4); }
+    .sheet { display: flex; flex-direction: column; height: 100%; padding: 16px;
+      padding-top: max(16px, env(safe-area-inset-top)); padding-bottom: max(16px, env(safe-area-inset-bottom)); }
+    .sheet-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .sheet-head h2 { font-size: 1.15rem; margin: 0; }
+    #learntList { flex: 1; overflow-y: auto; margin-top: 8px; }
+    .restoreAll { display: block; margin: 8px 0 8px auto; }
+    .row { display: flex; align-items: center; gap: 10px; background: var(--card);
+      border-radius: 12px; padding: 10px 12px; margin-bottom: 6px; }
+    .row div { flex: 1; min-width: 0; }
+    .row b { display: block; overflow-wrap: anywhere; }
+    .row i { color: var(--back); font-style: normal; font-size: .9rem; }
+    .row span { display: block; color: var(--muted); font-size: .9rem; }
+    .row button, .restoreAll { padding: 4px 10px; font-size: .85rem; flex-shrink: 0; }
+    .emptyMsg { color: var(--muted); text-align: center; margin-top: 40px; }
+    @media (prefers-color-scheme: dark) { .say, .row i { color: var(--accent); } }
+  </style>
+</head>
+<body>
+  <button id="install" hidden>⬇ Install Bol as an app</button>
+  <header>
+    <h1><img src="icon.svg" alt="">Bol</h1>
+    <button id="shuffle" aria-label="Shuffle">🔀</button>
+  </header>
+  <div id="status"><span id="progress"></span><button id="showLearnt">✓ Learnt words</button></div>
+  <div class="stage">
+    <div class="card" id="card" role="button" aria-label="Flip card">
+      <div class="face front">
+        <div class="tag" id="frontTag"></div>
+        <button id="speak" aria-label="Hear the word" hidden>🔊</button>
+        <div class="word" id="front"></div>
+        <div class="hint">tap to flip</div>
+      </div>
+      <div class="face back"><div class="tag" id="backTag"></div><div class="word" id="back"></div></div>
+    </div>
+  </div>
+  <div class="controls">
+    <button id="prev">← Back</button>
+    <button id="next">Next →</button>
+    <button id="learnt">Learnt ✓</button>
+  </div>
+
+  <dialog id="learntDialog">
+    <div class="sheet">
+      <div class="sheet-head"><h2 id="learntTitle">Learnt words</h2><button id="closeLearnt">Close</button></div>
+      <div id="learntList"></div>
+    </div>
+  </dialog>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    // localStorage can be unavailable (private mode); the app still works, just without memory.
+    const store = {
+      get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
+      set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+    };
+    const el = (tag, text, cls) => {
+      const e = document.createElement(tag);
+      if (text != null) e.textContent = text;
+      if (cls) e.className = cls;
+      return e;
+    };
+
+    // cards = [[hindi, pronunciation, english, grammar?], ...]; a card's id is its Hindi word.
+    let cards = [], deck = [], i = 0;
+    const learnt = new Set(store.get("learnt", []));
+
+    function shuffle(a) {
+      for (let k = a.length - 1; k > 0; k--) {
+        const j = Math.floor(Math.random() * (k + 1));
+        [a[k], a[j]] = [a[j], a[k]];
+      }
+      return a;
+    }
+
+    // Opening the app shuffles once; 🔀 reshuffles on demand.
+    function buildDeck() {
+      deck = shuffle(cards
+        .map(([hi, say, en, gram]) => ({ hi, say, en, gram }))
+        .filter((c) => !learnt.has(c.hi)));
+      i = 0;
+      render();
+    }
+
+    function render() {
+      $("showLearnt").textContent = `✓ Learnt words (${learnt.size})`;
+      $("card").classList.remove("flipped");
+      const tag = `${cards.length - learnt.size} to learn`;
+      ["prev", "next", "learnt"].forEach((b) => ($(b).disabled = !deck.length));
+      $("speak").hidden = !deck.length || !("speechSynthesis" in window);
+      if (!deck.length) {
+        $("front").textContent = "🎉 All learnt!";
+        $("frontTag").textContent = "";
+        $("progress").textContent = "0 left";
+        return;
+      }
+      const c = deck[i];
+      // Hindi word big, how to say it on a smaller line below.
+      $("front").replaceChildren(c.hi, el("span", c.say, "say"));
+      $("frontTag").textContent = c.gram || "";
+      // Swap the answer only after the card has turned back to the front.
+      setTimeout(() => {
+        $("back").replaceChildren(c.en, el("span", `${c.hi} · ${c.say}`, "note"));
+        $("backTag").textContent = c.gram || "";
+      }, 200);
+      $("progress").textContent = `${i + 1} / ${deck.length} · ${tag}`;
+    }
+
+    // 🔊 reads the word with the phone's Hindi voice (if it has none, the default voice tries).
+    function speak(text) {
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "hi-IN";
+      const v = speechSynthesis.getVoices().find((v) => v.lang.replace("_", "-").startsWith("hi"));
+      if (v) u.voice = v;
+      u.rate = 0.85;
+      speechSynthesis.speak(u);
+    }
+    if ("speechSynthesis" in window) speechSynthesis.getVoices(); // starts loading voices
+
+    $("speak").onclick = (e) => { e.stopPropagation(); deck.length && speak(deck[i].hi); };
+    $("card").onclick = () => deck.length && $("card").classList.toggle("flipped");
+    $("prev").onclick = () => { i = (i - 1 + deck.length) % deck.length; render(); };
+    $("next").onclick = () => { i = (i + 1) % deck.length; render(); };
+    $("learnt").onclick = () => {
+      learnt.add(deck[i].hi);
+      store.set("learnt", [...learnt]);
+      deck.splice(i, 1);
+      if (i >= deck.length) i = 0;
+      render();
+    };
+    $("shuffle").onclick = () => { shuffle(deck); i = 0; render(); };
+
+    // Learnt words list, in word-list order.
+    let restored = false; // a word was restored while the list was open
+
+    function restore(words) {
+      words.forEach(([hi]) => learnt.delete(hi));
+      store.set("learnt", [...learnt]);
+      restored = true;
+      renderLearnt();
+    }
+
+    function renderLearnt() {
+      const out = $("learntList"), scroll = out.scrollTop;
+      out.replaceChildren();
+      const words = cards.filter(([hi]) => learnt.has(hi));
+      $("learntTitle").textContent = `Learnt words (${words.length})`;
+      if (!words.length) {
+        out.append(el("p", "No learnt words yet. Tap “Learnt ✓” on a card to add it here.", "emptyMsg"));
+        return;
+      }
+      const all = el("button", "Restore all", "restoreAll");
+      all.onclick = () => confirm(`Put all ${words.length} words back into practice?`) && restore(words);
+      out.append(all);
+      for (const [hi, say, en] of words) {
+        const row = el("div", null, "row"), text = el("div");
+        const b = el("b", hi + " ");
+        b.append(el("i", say));
+        text.append(b, el("span", en));
+        const undo = el("button", "↩ Undo");
+        undo.onclick = () => restore([[hi]]);
+        row.append(text, undo);
+        out.append(row);
+      }
+      out.scrollTop = scroll;
+    }
+
+    $("showLearnt").onclick = () => {
+      restored = false;
+      renderLearnt();
+      $("learntList").scrollTop = 0;
+      $("learntDialog").showModal();
+    };
+    $("closeLearnt").onclick = () => $("learntDialog").close();
+    $("learntDialog").onclose = () => (restored ? buildDeck() : render());
+
+    fetch("cards.json")
+      .then((r) => r.json())
+      .then((d) => { cards = d; buildDeck(); })
+      .catch(() => { $("front").textContent = "Couldn't load cards."; });
+
+    // Chrome only fires this when Bol can be installed and isn't installed yet. Its dialog
+    // installs a real app (own icon, no browser bar), unlike "Add to Home screen > Create shortcut".
+    let installPrompt = null;
+    addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      installPrompt = e;
+      $("install").hidden = false;
+    });
+    $("install").onclick = () => {
+      $("install").hidden = true;
+      installPrompt?.prompt();
+      installPrompt = null;
+    };
+    addEventListener("appinstalled", () => ($("install").hidden = true));
+
+    // iPhone/iPad have no install prompt, so explain the Share-menu route instead (once dismissed, stays hidden).
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    const standalone = navigator.standalone || matchMedia("(display-mode: standalone)").matches;
+    if (isIOS && !standalone && !store.get("iosHintDismissed", false)) {
+      $("install").textContent = "To install: tap Share ⬆︎ then “Add to Home Screen” ✕";
+      $("install").hidden = false;
+      $("install").onclick = () => { $("install").hidden = true; store.set("iosHintDismissed", true); };
+    }
+
+    if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js");
+  </script>
+</body>
+</html>
