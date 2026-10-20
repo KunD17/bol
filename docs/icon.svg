@@ -1,42 +1,25 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <!-- Full-bleed dark-brown background so Android can mask the icon to any shape; the rose
-       stays inside the central safe zone (radius ~205) that every mask keeps. -->
-  <defs>
-    <radialGradient id="bg" cx=".5" cy=".42" r=".75">
-      <stop offset="0" stop-color="#8a5a3c"/>
-      <stop offset="1" stop-color="#5c3a24"/>
-    </radialGradient>
-    <radialGradient id="petal" cx=".5" cy=".35" r=".8">
-      <stop offset="0" stop-color="#f7a8c0"/>
-      <stop offset="1" stop-color="#d9587f"/>
-    </radialGradient>
-    <radialGradient id="inner" cx=".5" cy=".45" r=".7">
-      <stop offset="0" stop-color="#fbc3d3"/>
-      <stop offset="1" stop-color="#e9779a"/>
-    </radialGradient>
-  </defs>
-  <rect width="512" height="512" fill="url(#bg)"/>
+  <!-- Parijaat (night-flowering jasmine) on a flat mud-brown background. The background is
+       full-bleed so Android can mask the icon to any shape; the flower stays inside the central
+       safe zone (radius ~205) that every mask keeps. -->
+  <rect width="512" height="512" fill="#6f4a2d"/>
 
-  <g transform="translate(256 256) scale(1.2) translate(-256 -222)">
-  <!-- Outer petals -->
-  <g fill="url(#petal)" stroke="#c4466d" stroke-width="3">
-    <ellipse cx="256" cy="168" rx="66" ry="74" transform="rotate(0 256 222)"/>
-    <ellipse cx="256" cy="168" rx="66" ry="74" transform="rotate(72 256 222)"/>
-    <ellipse cx="256" cy="168" rx="66" ry="74" transform="rotate(144 256 222)"/>
-    <ellipse cx="256" cy="168" rx="66" ry="74" transform="rotate(216 256 222)"/>
-    <ellipse cx="256" cy="168" rx="66" ry="74" transform="rotate(288 256 222)"/>
+  <!-- Orange tube, behind the petals -->
+  <path d="M256 250 C 270 310, 292 360, 318 412" stroke="#e8650f" stroke-width="24" fill="none" stroke-linecap="round"/>
+  <path d="M256 250 C 268 304, 286 352, 308 398" stroke="#f5892a" stroke-width="8" fill="none" stroke-linecap="round"/>
+
+  <!-- Seven white petals, each leaning the same way (pinwheel) with a notched tip -->
+  <g fill="#fffaf1" stroke="#e7d8c3" stroke-width="3" stroke-linejoin="round">
+    <path id="petal" d="M256 244 C 226 212, 226 150, 250 112 L 264 128 L 280 114 C 296 158, 288 214, 256 244 Z"/>
+    <use href="#petal" transform="rotate(51.43 256 244)"/>
+    <use href="#petal" transform="rotate(102.86 256 244)"/>
+    <use href="#petal" transform="rotate(154.29 256 244)"/>
+    <use href="#petal" transform="rotate(205.71 256 244)"/>
+    <use href="#petal" transform="rotate(257.14 256 244)"/>
+    <use href="#petal" transform="rotate(308.57 256 244)"/>
   </g>
-  <!-- Middle petals -->
-  <g fill="url(#inner)" stroke="#c94f75" stroke-width="3">
-    <ellipse cx="256" cy="186" rx="50" ry="56" transform="rotate(36 256 222)"/>
-    <ellipse cx="256" cy="186" rx="50" ry="56" transform="rotate(108 256 222)"/>
-    <ellipse cx="256" cy="186" rx="50" ry="56" transform="rotate(180 256 222)"/>
-    <ellipse cx="256" cy="186" rx="50" ry="56" transform="rotate(252 256 222)"/>
-    <ellipse cx="256" cy="186" rx="50" ry="56" transform="rotate(324 256 222)"/>
-  </g>
-  <!-- Bud and spiral -->
-  <circle cx="256" cy="222" r="46" fill="#f08cab" stroke="#c94f75" stroke-width="3"/>
-  <path d="M256 222 m-5 0 a5 5 0 1 1 10 0 a12 12 0 1 1 -22 2 a20 20 0 1 1 38 -4 a28 28 0 1 1 -54 6"
-        fill="none" stroke="#b63c63" stroke-width="5" stroke-linecap="round"/>
-  </g>
+
+  <!-- Orange eye -->
+  <circle cx="256" cy="244" r="20" fill="#e8650f"/>
+  <circle cx="256" cy="244" r="9" fill="#c94f08"/>
 </svg>
