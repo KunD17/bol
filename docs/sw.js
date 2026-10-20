@@ -1,7 +1,7 @@
 // Offline support. Every file is saved on install, so the app works offline from the
 // first visit. Requests are answered from the cache straight away (fast, works offline)
 // and refreshed in the background, so newly pushed chapters show up on the next open.
-const CACHE = "bol-v4";
+const CACHE = "bol-v5";
 const FILES = ["./", "index.html", "cards.json", "phrases.json", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png", "apple-touch-icon.png"];
 
 self.addEventListener("install", (event) => {

@@ -33,11 +33,13 @@
     header { display: flex; gap: 8px; align-items: center; }
     header h1 { flex: 1; margin: 0; font-size: 1.3rem; display: flex; align-items: center; gap: 8px; }
     header h1 img { width: 32px; height: 32px; border-radius: 8px; }
-    button {
+    button, select {
       font: inherit; color: inherit; background: var(--card);
       border: 1px solid color-mix(in srgb, var(--muted) 40%, transparent);
       border-radius: 10px; padding: 10px 12px;
     }
+    #topic { width: 100%; margin-top: 8px; }
+    #topic[hidden] { display: none; }
     .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin-top: 8px;
       border: 1px solid color-mix(in srgb, var(--muted) 40%, transparent); border-radius: 10px; overflow: hidden; }
     .tabs button { border: 0; border-radius: 0; padding: 8px; }
@@ -101,6 +103,7 @@
     <button id="tabWords">Words</button>
     <button id="tabPhrases">Phrases</button>
   </div>
+  <select id="topic" aria-label="Topic" hidden></select>
   <div id="status"><span id="progress"></span><button id="showLearnt">✓ Learnt words</button></div>
   <div class="stage">
     <div class="card" id="card" role="button" aria-label="Flip card">
@@ -158,13 +161,27 @@
       return a;
     }
 
+    // Phrases can be narrowed to one topic ("" = all topics), listed in file order.
+    const ALL = "";
+    let topic = store.get("topic", ALL);
+    function fillTopics() {
+      const topics = [...new Set(decks.Phrases.map((p) => p[3]))];
+      if (!topics.includes(topic)) topic = ALL;
+      $("topic").replaceChildren(el("option", "All topics"), ...topics.map((t) => el("option", t)));
+      $("topic").options[0].value = ALL;
+      $("topic").value = topic;
+    }
+    $("topic").onchange = () => { topic = $("topic").value; store.set("topic", topic); buildDeck(); };
+
     // Opening a deck shuffles it once; 🔀 reshuffles on demand.
     function buildDeck() {
       store.set("list", list);
       DECKS.forEach((d) => $("tab" + d).setAttribute("aria-pressed", d === list));
+      const byTopic = list === "Phrases" && topic !== ALL;
+      $("topic").hidden = list !== "Phrases";
       deck = shuffle(decks[list]
         .map(([hi, say, en, tag]) => ({ hi, say, en, tag }))
-        .filter((c) => !learnt.has(id(list, c.hi))));
+        .filter((c) => !learnt.has(id(list, c.hi)) && (!byTopic || c.tag === topic)));
       i = 0;
       render();
     }
@@ -172,7 +189,7 @@
     function render() {
       $("showLearnt").textContent = `✓ Learnt (${DECKS.reduce((n, d) => n + learntIn(d).length, 0)})`;
       $("card").classList.remove("flipped");
-      const left = `${deck.length} ${list.toLowerCase()} to learn`;
+      const left = `${deck.length} ${list === "Phrases" && topic !== ALL ? `“${topic}”` : list.toLowerCase()} to learn`;
       ["prev", "next", "learnt"].forEach((b) => ($(b).disabled = !deck.length));
       $("speak").hidden = !deck.length || !("speechSynthesis" in window);
       if (!deck.length) {
@@ -268,7 +285,7 @@
     $("learntDialog").onclose = () => (restored ? buildDeck() : render());
 
     Promise.all(DECKS.map((d) => fetch(FILES[d]).then((r) => r.json())))
-      .then((all) => { DECKS.forEach((d, k) => (decks[d] = all[k])); buildDeck(); })
+      .then((all) => { DECKS.forEach((d, k) => (decks[d] = all[k])); fillTopics(); buildDeck(); })
       .catch(() => { $("front").textContent = "Couldn't load cards."; });
 
     // Chrome only fires this when Bol can be installed and isn't installed yet. Its dialog

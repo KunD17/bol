@@ -65,7 +65,8 @@ changes, open it once while online; the update appears the time after that.
 
 ## Using the app
 
-- **Words / Phrases** switches deck.
+- **Words / Phrases** switches deck. On Phrases, the dropdown picks a topic (*At the table*,
+  *You'll hear* …) or *All topics*.
 - Tap the card to flip it. **← Back** / **Next →** move through the words.
 - 🔊 says the word or phrase out loud.
 - **Learnt ✓** hides the word for good (saved on the phone). **✓ Learnt** lists them, words and phrases
