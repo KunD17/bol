@@ -91,23 +91,9 @@
     .row button, .restoreAll { padding: 4px 10px; font-size: .85rem; flex-shrink: 0; }
     .emptyMsg { color: var(--muted); text-align: center; margin-top: 40px; }
     @media (prefers-color-scheme: dark) { .say, .row i { color: var(--accent); } }
-    /* Keeps the phone's launch screen (logo on the light background) up for one more second,
-       then fades into the app. */
-    #splash { position: fixed; inset: 0; z-index: 10; background: #f6f0e8;
-      display: flex; align-items: center; justify-content: center; transition: opacity .4s ease; }
-    #splash img { width: 128px; height: 128px; border-radius: 28px; }
-    #splash.gone { opacity: 0; pointer-events: none; }
   </style>
 </head>
 <body>
-  <div id="splash" aria-hidden="true"><img src="parijaat.svg" alt=""></div>
-  <script>
-    setTimeout(() => {
-      const s = document.getElementById("splash");
-      s.classList.add("gone");
-      setTimeout(() => s.remove(), 400);
-    }, 1000);
-  </script>
   <button id="install" hidden>⬇ Install Bol as an app</button>
   <header>
     <h1><img src="parijaat.svg" alt="">Bol</h1>
