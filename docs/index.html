@@ -132,10 +132,19 @@
   <script>
     const $ = (id) => document.getElementById(id);
     // localStorage can be unavailable (private mode); the app still works, just without memory.
-    const store = {
+    // Keys are prefixed "bol:" because the Swedish app (Sol) lives on the same site and shares
+    // this storage on Android.
+    const raw = {
       get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
       set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
     };
+    const store = { get: (k, d) => raw.get("bol:" + k, d), set: (k, v) => raw.set("bol:" + k, v) };
+    // Older versions saved Bol's learnt cards in Sol's "learnt" list: move the Hindi ones over.
+    if (store.get("learnt", null) === null) {
+      const shared = raw.get("learnt", []), hindi = (k) => /[ऀ-ॿ]/.test(k);
+      store.set("learnt", shared.filter(hindi));
+      if (shared.some(hindi)) raw.set("learnt", shared.filter((k) => !hindi(k)));
+    }
     const el = (tag, text, cls) => {
       const e = document.createElement(tag);
       if (text != null) e.textContent = text;
