@@ -5,7 +5,7 @@
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#6f4a2d",
+  "background_color": "#f6f0e8",
   "theme_color": "#a8325a",
   "icons": [
     { "src": "parijaat-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },

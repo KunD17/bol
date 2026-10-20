@@ -91,10 +91,11 @@
     .row button, .restoreAll { padding: 4px 10px; font-size: .85rem; flex-shrink: 0; }
     .emptyMsg { color: var(--muted); text-align: center; margin-top: 40px; }
     @media (prefers-color-scheme: dark) { .say, .row i { color: var(--accent); } }
-    /* Launch screen: the logo for a second, then it fades into the app. */
-    #splash { position: fixed; inset: 0; z-index: 10; background: #6f4a2d;
+    /* Keeps the phone's launch screen (logo on the light background) up for one more second,
+       then fades into the app. */
+    #splash { position: fixed; inset: 0; z-index: 10; background: #f6f0e8;
       display: flex; align-items: center; justify-content: center; transition: opacity .4s ease; }
-    #splash img { width: min(60vw, 60vh); }
+    #splash img { width: 128px; height: 128px; border-radius: 28px; }
     #splash.gone { opacity: 0; pointer-events: none; }
   </style>
 </head>
