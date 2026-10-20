@@ -8,7 +8,7 @@
   "background_color": "#f6f0e8",
   "theme_color": "#a8325a",
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    { "src": "parijaat-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "parijaat-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ]
 }
