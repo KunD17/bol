@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#a8325a">
   <title>Bol</title>
-  <meta name="description" content="Bol – 2000 core Hindi words">
+  <meta name="description" content="Bol – Hindi words and everyday phrases">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <!-- iPhone/iPad: home-screen icon, name and full-screen mode (iOS ignores manifest icons). -->
@@ -38,6 +38,11 @@
       border: 1px solid color-mix(in srgb, var(--muted) 40%, transparent);
       border-radius: 10px; padding: 10px 12px;
     }
+    .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin-top: 8px;
+      border: 1px solid color-mix(in srgb, var(--muted) 40%, transparent); border-radius: 10px; overflow: hidden; }
+    .tabs button { border: 0; border-radius: 0; padding: 8px; }
+    .tabs button[aria-pressed="true"] { background: var(--back); color: var(--back-fg); font-weight: 600; }
+    .deck { font-size: 1rem; margin: 20px 2px 8px; }
     #status { display: flex; justify-content: space-between; align-items: center;
       color: var(--muted); font-size: .9rem; margin: 10px 2px 8px; min-height: 1.6em; }
     .stage { flex: 1; display: flex; perspective: 1200px; min-height: 0; }
@@ -74,7 +79,7 @@
     .sheet-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
     .sheet-head h2 { font-size: 1.15rem; margin: 0; }
     #learntList { flex: 1; overflow-y: auto; margin-top: 8px; }
-    .restoreAll { display: block; margin: 8px 0 8px auto; }
+    .restoreAll { display: block; margin: -34px 0 8px auto; }
     .row { display: flex; align-items: center; gap: 10px; background: var(--card);
       border-radius: 12px; padding: 10px 12px; margin-bottom: 6px; }
     .row div { flex: 1; min-width: 0; }
@@ -92,6 +97,10 @@
     <h1><img src="icon.svg" alt="">Bol</h1>
     <button id="shuffle" aria-label="Shuffle">🔀</button>
   </header>
+  <div class="tabs" role="group" aria-label="Deck">
+    <button id="tabWords">Words</button>
+    <button id="tabPhrases">Phrases</button>
+  </div>
   <div id="status"><span id="progress"></span><button id="showLearnt">✓ Learnt words</button></div>
   <div class="stage">
     <div class="card" id="card" role="button" aria-label="Flip card">
@@ -131,9 +140,15 @@
       return e;
     };
 
-    // cards = [[hindi, pronunciation, english, grammar?], ...]; a card's id is its Hindi word.
-    let cards = [], deck = [], i = 0;
+    // decks.Words / decks.Phrases = [[hindi, pronunciation, english, tag], ...]; the tag (word type or
+    // phrase topic) shows top-left. A word's learnt id is its Hindi; a phrase's is "Phrases|" + Hindi.
+    const DECKS = ["Words", "Phrases"];
+    const FILES = { Words: "cards.json", Phrases: "phrases.json" };
+    const id = (d, hi) => (d === "Words" ? hi : `${d}|${hi}`);
+    let decks = { Words: [], Phrases: [] }, deck = [], i = 0;
+    let list = DECKS.includes(store.get("list", null)) ? store.get("list") : "Words";
     const learnt = new Set(store.get("learnt", []));
+    const learntIn = (d) => decks[d].filter(([hi]) => learnt.has(id(d, hi)));
 
     function shuffle(a) {
       for (let k = a.length - 1; k > 0; k--) {
@@ -143,43 +158,46 @@
       return a;
     }
 
-    // Opening the app shuffles once; 🔀 reshuffles on demand.
+    // Opening a deck shuffles it once; 🔀 reshuffles on demand.
     function buildDeck() {
-      deck = shuffle(cards
-        .map(([hi, say, en, gram]) => ({ hi, say, en, gram }))
-        .filter((c) => !learnt.has(c.hi)));
+      store.set("list", list);
+      DECKS.forEach((d) => $("tab" + d).setAttribute("aria-pressed", d === list));
+      deck = shuffle(decks[list]
+        .map(([hi, say, en, tag]) => ({ hi, say, en, tag }))
+        .filter((c) => !learnt.has(id(list, c.hi))));
       i = 0;
       render();
     }
 
     function render() {
-      $("showLearnt").textContent = `✓ Learnt words (${learnt.size})`;
+      $("showLearnt").textContent = `✓ Learnt (${DECKS.reduce((n, d) => n + learntIn(d).length, 0)})`;
       $("card").classList.remove("flipped");
-      const tag = `${cards.length - learnt.size} to learn`;
+      const left = `${deck.length} ${list.toLowerCase()} to learn`;
       ["prev", "next", "learnt"].forEach((b) => ($(b).disabled = !deck.length));
       $("speak").hidden = !deck.length || !("speechSynthesis" in window);
       if (!deck.length) {
-        $("front").textContent = "🎉 All learnt!";
+        $("front").textContent = decks[list].length ? "🎉 All learnt!" : "Loading…";
         $("frontTag").textContent = "";
         $("progress").textContent = "0 left";
         return;
       }
       const c = deck[i];
-      // Hindi word big, how to say it on a smaller line below.
+      // Hindi big, how to say it on a smaller line below.
       $("front").replaceChildren(c.hi, el("span", c.say, "say"));
-      $("frontTag").textContent = c.gram || "";
+      $("frontTag").textContent = c.tag || "";
       // Swap the answer only after the card has turned back to the front.
       setTimeout(() => {
         $("back").replaceChildren(c.en, el("span", `${c.hi} · ${c.say}`, "note"));
-        $("backTag").textContent = c.gram || "";
+        $("backTag").textContent = c.tag || "";
       }, 200);
-      $("progress").textContent = `${i + 1} / ${deck.length} · ${tag}`;
+      $("progress").textContent = `${i + 1} / ${left}`;
     }
 
-    // 🔊 reads the word with the phone's Hindi voice (if it has none, the default voice tries).
+    // 🔊 reads the card with the phone's Hindi voice (if it has none, the default voice tries).
+    // "रहा/रही" reads only the first form, and "..." gaps are skipped.
     function speak(text) {
       speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text);
+      const u = new SpeechSynthesisUtterance(text.replace(/\/[^\s।?!,]+/g, "").replace(/\.\.\./g, ","));
       u.lang = "hi-IN";
       const v = speechSynthesis.getVoices().find((v) => v.lang.replace("_", "-").startsWith("hi"));
       if (v) u.voice = v;
@@ -193,46 +211,50 @@
     $("prev").onclick = () => { i = (i - 1 + deck.length) % deck.length; render(); };
     $("next").onclick = () => { i = (i + 1) % deck.length; render(); };
     $("learnt").onclick = () => {
-      learnt.add(deck[i].hi);
+      learnt.add(id(list, deck[i].hi));
       store.set("learnt", [...learnt]);
       deck.splice(i, 1);
       if (i >= deck.length) i = 0;
       render();
     };
     $("shuffle").onclick = () => { shuffle(deck); i = 0; render(); };
+    DECKS.forEach((d) => ($("tab" + d).onclick = () => { if (d !== list) { list = d; buildDeck(); } }));
 
-    // Learnt words list, in word-list order.
-    let restored = false; // a word was restored while the list was open
+    // Learnt list: words, then phrases, each in list order.
+    let restored = false; // a card of the open deck was restored while the list was open
 
-    function restore(words) {
-      words.forEach(([hi]) => learnt.delete(hi));
+    function restore(d, cards) {
+      cards.forEach(([hi]) => learnt.delete(id(d, hi)));
       store.set("learnt", [...learnt]);
-      restored = true;
+      if (d === list) restored = true;
       renderLearnt();
     }
 
     function renderLearnt() {
       const out = $("learntList"), scroll = out.scrollTop;
       out.replaceChildren();
-      const words = cards.filter(([hi]) => learnt.has(hi));
-      $("learntTitle").textContent = `Learnt words (${words.length})`;
-      if (!words.length) {
-        out.append(el("p", "No learnt words yet. Tap “Learnt ✓” on a card to add it here.", "emptyMsg"));
-        return;
+      let total = 0;
+      for (const d of DECKS) {
+        const cards = learntIn(d);
+        if (!cards.length) continue;
+        total += cards.length;
+        const head = el("h3", `${d} (${cards.length})`, "deck");
+        const all = el("button", "Restore all", "restoreAll");
+        all.onclick = () => confirm(`Put all ${cards.length} learnt ${d.toLowerCase()} back into practice?`) && restore(d, cards);
+        out.append(head, all);
+        for (const [hi, say, en] of cards) {
+          const row = el("div", null, "row"), text = el("div");
+          const b = el("b", hi + " ");
+          b.append(el("i", say));
+          text.append(b, el("span", en));
+          const undo = el("button", "↩ Undo");
+          undo.onclick = () => restore(d, [[hi]]);
+          row.append(text, undo);
+          out.append(row);
+        }
       }
-      const all = el("button", "Restore all", "restoreAll");
-      all.onclick = () => confirm(`Put all ${words.length} words back into practice?`) && restore(words);
-      out.append(all);
-      for (const [hi, say, en] of words) {
-        const row = el("div", null, "row"), text = el("div");
-        const b = el("b", hi + " ");
-        b.append(el("i", say));
-        text.append(b, el("span", en));
-        const undo = el("button", "↩ Undo");
-        undo.onclick = () => restore([[hi]]);
-        row.append(text, undo);
-        out.append(row);
-      }
+      $("learntTitle").textContent = `Learnt (${total})`;
+      if (!total) out.append(el("p", "Nothing learnt yet. Tap “Learnt ✓” on a card to add it here.", "emptyMsg"));
       out.scrollTop = scroll;
     }
 
@@ -245,9 +267,8 @@
     $("closeLearnt").onclick = () => $("learntDialog").close();
     $("learntDialog").onclose = () => (restored ? buildDeck() : render());
 
-    fetch("cards.json")
-      .then((r) => r.json())
-      .then((d) => { cards = d; buildDeck(); })
+    Promise.all(DECKS.map((d) => fetch(FILES[d]).then((r) => r.json())))
+      .then((all) => { DECKS.forEach((d, k) => (decks[d] = all[k])); buildDeck(); })
       .catch(() => { $("front").textContent = "Couldn't load cards."; });
 
     // Chrome only fires this when Bol can be installed and isn't installed yet. Its dialog

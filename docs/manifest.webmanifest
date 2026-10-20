@@ -1,7 +1,7 @@
 {
   "name": "Bol",
   "short_name": "Bol",
-  "description": "Bol – flashcards for 2000 core Hindi words.",
+  "description": "Bol – flashcards for Hindi words and everyday phrases.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

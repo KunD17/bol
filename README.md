@@ -1,6 +1,6 @@
-# Bol — 2000 core Hindi words
+# Bol — Hindi words and everyday phrases
 
-Flashcards for the *2000 core Hindi words* list. Front: the Hindi word in Devanagari with how to
+Flashcards for the *2000 core Hindi words* list, plus everyday Hinglish phrases for visiting family in India. Front: the Hindi word in Devanagari with how to
 say it, e.g. **व्यापार** *vyaapaar*. Back: the English meaning, `business`. The word type
 (`(n) masc`, `(v)`, `(adj)` …) is shown top-left on each card.
 
@@ -8,7 +8,11 @@ The app is a PWA (web app) you install on your phone from the browser. It works 
 
 ## The cards
 
-All 1885 words are in `docs/cards.json`, one card per word:
+The **Words | Phrases** switch at the top picks the deck.
+
+### Words
+
+All 1844 words are in `docs/cards.json`, one card per word:
 
 ```json
 ["व्यापार", "vyaapaar", "business", "(n) masc"]
@@ -19,7 +23,22 @@ meanings is one card, with the meanings joined (`वेतन` → `salary; wage
 the screenshots in `2000 core Hindi words/` with OCR and checked by hand; to fix a word, edit
 `cards.json` directly.
 
-### Pronunciation
+### Phrases
+
+The phrases are in `docs/phrases.json`, one per line, in the same format with a topic instead of
+the word type:
+
+```json
+["बस, और नहीं, थैंक यू।", "Bas, aur nahi, thank you.", "That's enough, no more, thank you.", "At the table"]
+```
+
+They are for a trip through India visiting family: meeting relatives, family words, the dinner
+table, compliments, festivals, health, getting around and shopping, plus a *You'll hear* topic
+with things relatives will say to you. They are everyday Hinglish, the mix of Hindi and English
+people actually speak, written the way people text it. The speaker is a woman (*rahi*, *gayi*,
+*loongi*), and the tone is casual rather than textbook-formal. To add a phrase, add a line.
+
+### Word-list pronunciation
 
 The pronunciation line uses the list's own spelling: a capital letter marks the dental or
 other "soft" sound (`T` = त, `D` = द, `N` = न, `S` = स, `L` = ल), lower case the retroflex or
@@ -46,10 +65,11 @@ changes, open it once while online; the update appears the time after that.
 
 ## Using the app
 
+- **Words / Phrases** switches deck.
 - Tap the card to flip it. **← Back** / **Next →** move through the words.
-- 🔊 says the word out loud.
-- **Learnt ✓** hides the word for good (saved on the phone). **✓ Learnt words** lists them, with
-  **Undo** and **Restore all**.
+- 🔊 says the word or phrase out loud.
+- **Learnt ✓** hides the word for good (saved on the phone). **✓ Learnt** lists them, words and phrases
+  separately, with **Undo** and **Restore all**.
 - 🔀 shuffles.
 
 ## Copyright
