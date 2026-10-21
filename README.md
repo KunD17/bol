@@ -15,10 +15,11 @@ The **Words | Phrases** switch at the top picks the deck.
 All 1844 words are in `docs/cards.json`, one card per word:
 
 ```json
-["व्यापार", "vyaapaar", "business", "(n) masc"]
+["व्यापार", "vyaapaar", "business", "(n) masc", "Work & school"]
 ```
 
-`[Hindi, pronunciation, English, word type]`. A word listed more than once with different
+`[Hindi, pronunciation, English, word type, topic]`. The words are grouped into 10 topics
+(*Food & drink*, *People, body & health*, *Travel & transport* …), following the source list. A word listed more than once with different
 meanings is one card, with the meanings joined (`वेतन` → `salary; wage`). The list was read from
 the screenshots in `2000 core Hindi words/` with OCR and checked by hand; to fix a word, edit
 `cards.json` directly.
@@ -65,8 +66,8 @@ changes, open it once while online; the update appears the time after that.
 
 ## Using the app
 
-- **Words / Phrases** switches deck. On Phrases, the dropdown picks a topic (*At the table*,
-  *You'll hear* …) or *All topics*.
+- **Words / Phrases** switches deck. The dropdown below picks a topic (*Food & drink*,
+  *At the table* …) or *All topics*; each deck remembers its own choice.
 - Tap the card to flip it. **← Back** / **Next →** move through the words.
 - 🔊 says the word or phrase out loud.
 - **Learnt ✓** hides the word for good (saved on the phone). **✓ Learnt** lists them, words and phrases
