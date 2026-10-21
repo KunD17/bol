@@ -8,7 +8,7 @@ The app is a PWA (web app) you install on your phone from the browser. It works 
 
 ## The cards
 
-The **Words | Phrases** switch at the top picks the deck.
+The **Phrases | Words** switch at the top picks the deck.
 
 ### Words
 
@@ -66,7 +66,7 @@ changes, open it once while online; the update appears the time after that.
 
 ## Using the app
 
-- **Words / Phrases** switches deck. The dropdown below picks a topic (*Food & drink*,
+- **Phrases / Words** switches deck (the app opens on Phrases). The dropdown below picks a topic (*Food & drink*,
   *At the table* …) or *All topics*; each deck remembers its own choice.
 - Tap the card to flip it. **← Back** / **Next →** move through the words.
 - 🔊 says the word or phrase out loud.

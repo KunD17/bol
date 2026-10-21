@@ -99,8 +99,8 @@
     <button id="shuffle" aria-label="Shuffle">🔀</button>
   </header>
   <div class="tabs" role="group" aria-label="Deck">
-    <button id="tabWords">Words</button>
     <button id="tabPhrases">Phrases</button>
+    <button id="tabWords">Words</button>
   </div>
   <select id="topic" aria-label="Topic"></select>
   <div id="status"><span id="progress"></span><button id="showLearnt">✓ Learnt words</button></div>
@@ -153,7 +153,7 @@
 
     // decks.Words / decks.Phrases = [[hindi, pronunciation, english, tag], ...]; the tag (word type or
     // phrase topic) shows top-left. A word's learnt id is its Hindi; a phrase's is "Phrases|" + Hindi.
-    const DECKS = ["Words", "Phrases"];
+    const DECKS = ["Phrases", "Words"];
     const FILES = { Words: "cards.json", Phrases: "phrases.json" };
     const id = (d, hi) => (d === "Words" ? hi : `${d}|${hi}`);
     let decks = { Words: [], Phrases: [] }, deck = [], i = 0;
@@ -176,11 +176,12 @@
     const topicKey = (d) => (d === "Words" ? "topic:Words" : "topic");
     const topics = { Words: store.get(topicKey("Words"), ALL), Phrases: store.get(topicKey("Phrases"), ALL) };
     function fillTopics() {
-      const names = [...new Set(decks[list].map((c) => topicOf(list, c)))];
+      const names = [...new Set(decks[list].map((c) => topicOf(list, c)).filter(Boolean))];
       if (!names.includes(topics[list])) topics[list] = ALL;
       $("topic").replaceChildren(el("option", "All topics"), ...names.map((t) => el("option", t)));
       $("topic").options[0].value = ALL;
       $("topic").value = topics[list];
+      $("topic").hidden = !names.length; // e.g. a cached cards.json from before topics
     }
     $("topic").onchange = () => {
       topics[list] = $("topic").value;
